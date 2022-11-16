@@ -1,20 +1,33 @@
 import { InputForm } from './InputForm/InputForm';
 import { Contacts } from './Contacts/Contacts';
-import { nanoid } from 'nanoid';
 import { Filter } from './Filter/Filter';
+import {
+  selectContacts,
+  selectFilter,
+  selectIsLoading,
+  selectError,
+} from 'redux/selectors';
 import { useDispatch, useSelector } from 'react-redux';
 import { setFilter } from 'redux/filterSlice';
-import { addContact, removeContact } from 'redux/contactsSlice';
+import { useEffect } from 'react';
+import { fetchContacts, addContact, deleteContact } from 'redux/operations';
 
 export const App = () => {
-  const contacts = useSelector(state => state.contacts.array);
+  const contacts = useSelector(selectContacts);
+
+  const isLoading = useSelector(selectIsLoading);
+
+  const error = useSelector(selectError);
+
+  const filter = useSelector(selectFilter);
 
   const dispatch = useDispatch();
 
-  const filter = useSelector(state => state.filter);
+  useEffect(() => {
+    dispatch(fetchContacts());
+  }, [dispatch]);
 
   const formSubmitHandler = newData => {
-    newData.id = nanoid();
     if (checkContactAvailability(newData)) {
       alert(`${newData.name} is already in contacts`);
       return;
@@ -29,7 +42,7 @@ export const App = () => {
   };
 
   const contactDeleteHandler = contactId => {
-    dispatch(removeContact(contactId));
+    dispatch(deleteContact(contactId));
   };
 
   const changeFilter = event => {
@@ -47,13 +60,15 @@ export const App = () => {
 
   return (
     <div>
-      <h1>PhoneBook</h1>
+      <h2>PhoneBook</h2>
       <InputForm onSubmit={formSubmitHandler} />
-      {contacts.length > 0 && <h2>Contacts</h2>}
+      {contacts.length > 0 && <h3>Contacts</h3>}
       {contacts.length > 0 && (
         <Filter filterValue={filter} onValueChange={changeFilter} />
       )}
       <Contacts contacts={visibleContacts} onDelete={contactDeleteHandler} />
+      {isLoading && !error && <p>Request in progress...</p>}
+      {error && <b>{error}</b>}
     </div>
   );
 };

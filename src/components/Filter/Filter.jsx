@@ -3,7 +3,7 @@ import { Input, Lable } from 'components/InputForm/InputForm.styled';
 
 export const Filter = ({ filterValue, onValueChange }) => {
   return (
-    <Lable htmlFor=""> 
+    <Lable> 
       Find contact by name: 
       <Input type="text" value={filterValue} onChange={onValueChange} />
     </Lable>
